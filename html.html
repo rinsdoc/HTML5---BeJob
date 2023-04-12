@@ -1,0 +1,72 @@
+<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload</title>
+</head>
+<body>
+    <form>
+        <label for="video-upload">Upload video:</label>
+        <input type="file" id="video-upload" name="video" accept=".mp4">
+        <span id="file-error" style="display:none;">Please select a valid MP4 video file.</span>
+      </form>
+      
+      <video id="my-video" controls>
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      
+      <div id="loading-message">Loading video... This might take a few minutes</div>
+      
+      <div>
+        <button onclick="document.getElementById('my-video').play()">Play</button>
+        <button onclick="document.getElementById('my-video').pause()">Pause</button>
+        <button onclick="document.getElementById('my-video').currentTime=0">Stop</button>
+        <input type="range" min="0" max="1" step="0.1" value="1" oninput="document.getElementById('my-video').volume=this.value">
+      </div>
+      
+      <script>
+        const videoUpload = document.getElementById('video-upload');
+        const videoPlayer = document.getElementById('my-video');
+        const fileError = document.getElementById('file-error');
+        const loadingMessage = document.getElementById('loading-message');
+        
+        videoPlayer.onloadstart = function() {
+          loadingMessage.style.display = 'block';
+        }
+        
+        videoPlayer.onloadedmetadata = function() {
+          loadingMessage.style.display = 'none';
+        }
+        
+        videoUpload.addEventListener('change', function() {
+          const file = this.files[0];
+          if (file.type !== 'video/mp4') {
+            fileError.style.display = 'block';
+            videoPlayer.src = '';
+          } else {
+            const fileURL = URL.createObjectURL(file);
+            videoPlayer.src = fileURL;
+            fileError.style.display = 'none';
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const popupWidth = 400;
+            const popupHeight = 200;
+            const left = (windowWidth - popupWidth) / 2;
+            const top = (windowHeight - popupHeight) / 2;
+            const popupWindow = window.open('', '_blank', `width=${popupWidth}, height=${popupHeight}, top=${top}, left=${left}`);
+            const popupContent = `
+              <p>File name: ${file.name}</p>
+              <p>File type: ${file.type}</p>
+              <p>File size: ${file.size} bytes</p>
+              <button onclick="window.close()">OK</button>
+            `;
+            popupWindow.document.body.innerHTML = popupContent;
+          }
+        });
+      </script>
+</body>
+</html>
